@@ -12,8 +12,8 @@
 
 
 // Global Constants
-constexpr int   SCREEN_WIDTH  = 1600,
-                SCREEN_HEIGHT = 900,
+constexpr int   SCREEN_WIDTH  = 1366,
+                SCREEN_HEIGHT = 768,
                 FPS           = 60,
                 SIZE          = 300;
 
@@ -34,11 +34,15 @@ AppStatus gAppStatus     = RUNNING;
 float     gScaleFactor   = SIZE,
           gAngle         = 0.0f,
           gPulseTime     = 0.0f;
-Vector2   gPosition      = ORIGIN;
 
-Vector2   gFlashScale    = FLASH_SIZE;
-Vector2   gRegeraScale   = REGERA_SIZE;
-Vector2   gCameraScale   = CAMERA_SIZE;
+
+Vector2   gFlashScale    = { FLASH_SIZE.x / 2.0f, FLASH_SIZE.y / 2.0f };
+Vector2   gRegeraScale   = { REGERA_SIZE.x / 2.0f, REGERA_SIZE.y / 2.0f };
+Vector2   gCameraScale   = { CAMERA_SIZE.x / 6.0f, CAMERA_SIZE.y / 6.0f };
+
+Vector2   gFlashPosition = { gFlashScale.x / 2.0f, SCREEN_HEIGHT - gFlashScale.y / 2.0f };
+Vector2   gRegeraPosition = { SCREEN_WIDTH - gRegeraScale.x / 2.0f, SCREEN_HEIGHT - gRegeraScale.y / 2.0f};
+Vector2   gCameraPosition = { SCREEN_WIDTH - gCameraScale.x / 2.0f, gCameraScale.y / 2.0f };
 
 Vector2   gScale         = BASE_SIZE;
 float     gPreviousTicks = 0.0f;
@@ -72,8 +76,8 @@ void drawFlash() {
 
     // Destination rectangle – centred on gPosition
     Rectangle FlashDestinationArea = {
-        gPosition.x,
-        gPosition.y,
+        gFlashPosition.x,
+        gFlashPosition.y,
         static_cast<float>(gFlashScale.x),
         static_cast<float>(gFlashScale.y)
     };
@@ -109,8 +113,8 @@ void drawRegera() {
 
     // Destination rectangle – centred on gPosition
     Rectangle RegeraDestinationArea = {
-        gPosition.x,
-        gPosition.y,
+        gRegeraPosition.x,
+        gRegeraPosition.y,
         static_cast<float>(gRegeraScale.x),
         static_cast<float>(gRegeraScale.y)
     };
@@ -146,8 +150,8 @@ void drawCamera() {
 
     // Destination rectangle – centred on gPosition
     Rectangle CameraDestinationArea = {
-        gPosition.x,
-        gPosition.y,
+        gCameraPosition.x,
+        gCameraPosition.y,
         static_cast<float>(gCameraScale.x),
         static_cast<float>(gCameraScale.y)
     };
