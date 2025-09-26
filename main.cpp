@@ -9,6 +9,7 @@
 **/
 
 #include "CS3113/cs3113.h"
+#include "math.h"
 
 
 // Global Constants
@@ -35,8 +36,19 @@ float     gScaleFactor   = SIZE,
           gAngle         = 0.0f,
           gPulseTime     = 0.0f;
 
+// FLASH animation state (kept from new behavior)
+constexpr float FLASH_MIN_FACTOR = 1.0f / 12.0f;
+constexpr float FLASH_MAX_FACTOR = 1.5f;
+constexpr float FLASH_GROWTH_K   = 0.9f;
+constexpr float FLASH_BASE_SPEED = 120.0f;
+constexpr float FLASH_BOB_AMP    = 40.0f;
+constexpr float FLASH_BOB_FREQ   = 3.0f;
+constexpr float FLASH_DRIFT_SPEED = 800.0f;
 
-Vector2   gFlashScale    = { FLASH_SIZE.x / 2.0f, FLASH_SIZE.y / 2.0f };
+float    gFlashTime   = 0.0f;
+bool     gFlashDrift  = false;
+
+Vector2   gFlashScale    = { FLASH_SIZE.x * FLASH_MIN_FACTOR, FLASH_SIZE.y * FLASH_MIN_FACTOR };
 Vector2   gRegeraScale   = { REGERA_SIZE.x / 2.0f, REGERA_SIZE.y / 2.0f };
 Vector2   gCameraScale   = { CAMERA_SIZE.x / 6.0f, CAMERA_SIZE.y / 6.0f };
 
@@ -191,7 +203,52 @@ void processInput()
 
 void update() 
 {
-    // Nothing to update
+    float ticks = (float) GetTime();
+    float deltaTime = ticks - gPreviousTicks;
+    gPreviousTicks = ticks;
+
+    gPulseTime += 1.0f * deltaTime;
+
+    if (!gFlashDrift) {
+
+        gFlashTime += deltaTime;
+
+        float growth = expf(FLASH_GROWTH_K * gFlashTime);
+        float factor = FLASH_MIN_FACTOR * growth;
+
+        if (factor > FLASH_MAX_FACTOR) factor = FLASH_MAX_FACTOR;
+
+        gFlashScale.x = FLASH_SIZE.x * factor;
+        gFlashScale.y = FLASH_SIZE.y * factor;
+
+        float speed = FLASH_BASE_SPEED * growth;
+
+        gFlashPosition.x += speed * deltaTime;
+
+        gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f
+                           - FLASH_BOB_AMP * sinf(gPulseTime * FLASH_BOB_FREQ);
+
+        if (factor >= FLASH_MAX_FACTOR) {
+            gFlashDrift = true;
+        }
+
+    } else {
+        
+        gFlashPosition.x += FLASH_DRIFT_SPEED * deltaTime;
+        gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f
+                           - (FLASH_BOB_AMP * 0.5f) * sinf(gPulseTime * FLASH_BOB_FREQ * 0.8f);
+
+        if (gFlashPosition.x - gFlashScale.x * 0.5f > SCREEN_WIDTH) {
+
+            gFlashDrift = false;
+            gFlashTime = 0.0f;
+            gFlashScale.x = FLASH_SIZE.x * FLASH_MIN_FACTOR;
+            gFlashScale.y = FLASH_SIZE.y * FLASH_MIN_FACTOR;
+            gFlashPosition.x = gFlashScale.x * 0.5f;
+            gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f;
+            
+        }
+    }
 }
 
 void render()
@@ -223,4 +280,3 @@ int main(void)
 
     return 0;
 }
-
