@@ -51,7 +51,7 @@ Vector2   gRegeraScale   = { REGERA_SIZE.x / 2.0f, REGERA_SIZE.y / 2.0f };
 Vector2   gCameraScale   = { CAMERA_SIZE.x / 6.0f, CAMERA_SIZE.y / 6.0f };
 
 Vector2   gFlashPosition = { gFlashScale.x / 2.0f, SCREEN_HEIGHT - gFlashScale.y / 2.0f };
-Vector2   gRegeraPosition = { SCREEN_WIDTH - gRegeraScale.x / 2.0f, SCREEN_HEIGHT - gRegeraScale.y / 2.0f};
+Vector2   gRegeraPosition = { gRegeraScale.x / 2.0f, gRegeraScale.y / 2.0f };
 Vector2   gCameraPosition = { SCREEN_WIDTH - gCameraScale.x / 2.0f, gCameraScale.y / 2.0f };
 
 Vector2   gScale         = BASE_SIZE;
@@ -228,6 +228,17 @@ void update()
         gFlashScale.y = FLASH_SIZE.y * FLASH_MIN_FACTOR;
         gFlashPosition.x = gFlashScale.x * 0.5f;
         gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f;
+    }
+
+    {
+        static bool rinit = false;
+        static Vector2 rbase;
+        if (!rinit) { rbase = gRegeraPosition; rinit = true; }
+        float w = 0.6f;
+        float ax = 80.0f;
+        float ay = 30.0f;
+        gRegeraPosition.x = rbase.x + ax * cosf(w * gPulseTime);
+        gRegeraPosition.y = rbase.y + ay * sinf(2.0f * w * gPulseTime);
     }
 }
 
