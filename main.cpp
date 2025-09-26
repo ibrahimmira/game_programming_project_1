@@ -59,6 +59,16 @@ Vector2   gCameraPosition = { SCREEN_WIDTH - gCameraScale.x / 2.0f, gCameraScale
 Vector2   gScale         = BASE_SIZE;
 float     gPreviousTicks = 0.0f;
 
+const char* gBgPalette[] = {
+    "#710000ff", // deep red
+    "#2a0033ff", // dark purple
+    "#001d4dff", // navy blue
+    "#004d26ff", // dark green
+    "#4d2a00ff"  // brownish orange
+};
+int gBgCount = 5;
+int gBgIndex = 0;
+
 Texture2D gTextureFLASH;
 Texture2D gTextureREGERA;
 Texture2D gTextureCAMERA;
@@ -225,6 +235,7 @@ void update()
                        - FLASH_BOB_AMP * sinf(gPulseTime * FLASH_BOB_FREQ);
 
     if (gFlashPosition.x - gFlashScale.x * 0.5f > SCREEN_WIDTH) {
+        gBgIndex = (gBgIndex + 1) % gBgCount;
         gFlashTime = 0.0f;
         gFlashScale.x = FLASH_SIZE.x * FLASH_MIN_FACTOR;
         gFlashScale.y = FLASH_SIZE.y * FLASH_MIN_FACTOR;
@@ -256,7 +267,7 @@ void update()
 void render()
 {
     BeginDrawing();
-    ClearBackground(ColorFromHex(BG_COLOUR));
+    ClearBackground(ColorFromHex(gBgPalette[gBgIndex]));
 
     drawFlash();
     drawRegera();
