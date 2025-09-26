@@ -36,6 +36,8 @@ float     gScaleFactor   = SIZE,
           gAngle         = 0.0f,
           gPulseTime     = 0.0f;
 
+float     gCameraAngle   = 0.0f; // Added to store camera rotation angle
+
 // FLASH animation state (kept from new behavior)
 constexpr float FLASH_MIN_FACTOR = 1.0f / 12.0f;
 constexpr float FLASH_MAX_FACTOR = 1.5f;
@@ -178,7 +180,7 @@ void drawCamera() {
         CameraTextureArea, 
         CameraDestinationArea, 
         CameraObjectOrigin, 
-        gAngle, 
+        gCameraAngle, 
         WHITE
     );
 }
@@ -231,15 +233,24 @@ void update()
     }
 
     {
-        static bool rinit = false;
-        static Vector2 rbase;
-        if (!rinit) { rbase = gRegeraPosition; rinit = true; }
-        float w = 0.6f;
-        float ax = 80.0f;
-        float ay = 30.0f;
-        gRegeraPosition.x = rbase.x + ax * cosf(w * gPulseTime);
-        gRegeraPosition.y = rbase.y + ay * sinf(2.0f * w * gPulseTime);
+        static bool regeraBaseInit = false;
+        static Vector2 regeraBasePosition;
+        if (!regeraBaseInit) { regeraBasePosition = gRegeraPosition; regeraBaseInit = true; }
+        float regeraAngularSpeed = 0.6f;
+        float regeraEllipseRadiusX = 80.0f;
+        float regeraEllipseRadiusY = 30.0f;
+        gRegeraPosition.x = regeraBasePosition.x + regeraEllipseRadiusX * cosf(regeraAngularSpeed * gPulseTime);
+        gRegeraPosition.y = regeraBasePosition.y + regeraEllipseRadiusY * sinf(2.0f * regeraAngularSpeed * gPulseTime);
     }
+
+    // Camera follows the Regera with elliptical orbit
+    float cameraOrbitSpeed = 1.1f;
+    float cameraOrbitRadiusX = 320.0f;
+    float cameraOrbitRadiusY = 220.0f;
+    float theta = cameraOrbitSpeed * gPulseTime;
+    gCameraPosition.x = gRegeraPosition.x + cameraOrbitRadiusX * cosf(theta);
+    gCameraPosition.y = gRegeraPosition.y + cameraOrbitRadiusY * sinf(theta);
+    gCameraAngle = 10.0f * sinf(theta);
 }
 
 void render()
