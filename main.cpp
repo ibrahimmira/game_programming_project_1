@@ -43,10 +43,8 @@ constexpr float FLASH_GROWTH_K   = 0.9f;
 constexpr float FLASH_BASE_SPEED = 120.0f;
 constexpr float FLASH_BOB_AMP    = 40.0f;
 constexpr float FLASH_BOB_FREQ   = 3.0f;
-constexpr float FLASH_DRIFT_SPEED = 800.0f;
 
 float    gFlashTime   = 0.0f;
-bool     gFlashDrift  = false;
 
 Vector2   gFlashScale    = { FLASH_SIZE.x * FLASH_MIN_FACTOR, FLASH_SIZE.y * FLASH_MIN_FACTOR };
 Vector2   gRegeraScale   = { REGERA_SIZE.x / 2.0f, REGERA_SIZE.y / 2.0f };
@@ -209,45 +207,27 @@ void update()
 
     gPulseTime += 1.0f * deltaTime;
 
-    if (!gFlashDrift) {
+    gFlashTime += deltaTime;
 
-        gFlashTime += deltaTime;
+    float growth = expf(FLASH_GROWTH_K * gFlashTime);
+    float factor = FLASH_MIN_FACTOR * growth;
+    if (factor > FLASH_MAX_FACTOR) factor = FLASH_MAX_FACTOR;
 
-        float growth = expf(FLASH_GROWTH_K * gFlashTime);
-        float factor = FLASH_MIN_FACTOR * growth;
+    gFlashScale.x = FLASH_SIZE.x * factor;
+    gFlashScale.y = FLASH_SIZE.y * factor;
 
-        if (factor > FLASH_MAX_FACTOR) factor = FLASH_MAX_FACTOR;
+    float speed = FLASH_BASE_SPEED * growth;
+    gFlashPosition.x += speed * deltaTime;
 
-        gFlashScale.x = FLASH_SIZE.x * factor;
-        gFlashScale.y = FLASH_SIZE.y * factor;
+    gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f
+                       - FLASH_BOB_AMP * sinf(gPulseTime * FLASH_BOB_FREQ);
 
-        float speed = FLASH_BASE_SPEED * growth;
-
-        gFlashPosition.x += speed * deltaTime;
-
-        gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f
-                           - FLASH_BOB_AMP * sinf(gPulseTime * FLASH_BOB_FREQ);
-
-        if (factor >= FLASH_MAX_FACTOR) {
-            gFlashDrift = true;
-        }
-
-    } else {
-        
-        gFlashPosition.x += FLASH_DRIFT_SPEED * deltaTime;
-        gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f
-                           - (FLASH_BOB_AMP * 0.5f) * sinf(gPulseTime * FLASH_BOB_FREQ * 0.8f);
-
-        if (gFlashPosition.x - gFlashScale.x * 0.5f > SCREEN_WIDTH) {
-
-            gFlashDrift = false;
-            gFlashTime = 0.0f;
-            gFlashScale.x = FLASH_SIZE.x * FLASH_MIN_FACTOR;
-            gFlashScale.y = FLASH_SIZE.y * FLASH_MIN_FACTOR;
-            gFlashPosition.x = gFlashScale.x * 0.5f;
-            gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f;
-            
-        }
+    if (gFlashPosition.x - gFlashScale.x * 0.5f > SCREEN_WIDTH) {
+        gFlashTime = 0.0f;
+        gFlashScale.x = FLASH_SIZE.x * FLASH_MIN_FACTOR;
+        gFlashScale.y = FLASH_SIZE.y * FLASH_MIN_FACTOR;
+        gFlashPosition.x = gFlashScale.x * 0.5f;
+        gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f;
     }
 }
 
