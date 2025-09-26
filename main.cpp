@@ -235,7 +235,7 @@ void update()
     {
         static bool regeraBaseInit = false;
         static Vector2 regeraBasePosition;
-        if (!regeraBaseInit) { regeraBasePosition = gRegeraPosition; regeraBaseInit = true; }
+        if (!regeraBaseInit) { regeraBasePosition = { SCREEN_WIDTH / 2.0f - 250.0f, SCREEN_HEIGHT / 2.0f - 150.0f }; regeraBaseInit = true; }
         float regeraAngularSpeed = 0.6f;
         float regeraEllipseRadiusX = 80.0f;
         float regeraEllipseRadiusY = 30.0f;
@@ -245,8 +245,8 @@ void update()
 
     // Camera follows the Regera with elliptical orbit
     float cameraOrbitSpeed = 1.1f;
-    float cameraOrbitRadiusX = 320.0f;
-    float cameraOrbitRadiusY = 220.0f;
+    float cameraOrbitRadiusX = 330.0f;
+    float cameraOrbitRadiusY = 190.0f;
     float theta = cameraOrbitSpeed * gPulseTime;
     gCameraPosition.x = gRegeraPosition.x + cameraOrbitRadiusX * cosf(theta);
     gCameraPosition.y = gRegeraPosition.y + cameraOrbitRadiusY * sinf(theta);
