@@ -36,9 +36,9 @@ float     gScaleFactor   = SIZE,
           gAngle         = 0.0f,
           gPulseTime     = 0.0f;
 
-float     gCameraAngle   = 0.0f; // Added to store camera rotation angle
+float     gCameraAngle   = 0.0f; 
 
-// FLASH animation state (kept from new behavior)
+// FLASH animation state
 constexpr float FLASH_MIN_FACTOR = 1.0f / 12.0f;
 constexpr float FLASH_MAX_FACTOR = 1.5f;
 constexpr float FLASH_GROWTH_K   = 0.9f;
@@ -53,6 +53,7 @@ Vector2   gRegeraScale   = { REGERA_SIZE.x / 2.0f, REGERA_SIZE.y / 2.0f };
 Vector2   gCameraScale   = { CAMERA_SIZE.x / 9.0f, CAMERA_SIZE.y / 9.0f };
 
 Vector2   gFlashPosition = { gFlashScale.x / 2.0f, SCREEN_HEIGHT - gFlashScale.y / 2.0f };
+Vector2   gRegeraBasePosition = { SCREEN_WIDTH / 2.0f - 250.0f, SCREEN_HEIGHT / 2.0f - 150.0f };
 Vector2   gRegeraPosition = { gRegeraScale.x / 2.0f, gRegeraScale.y / 2.0f };
 Vector2   gCameraPosition = { SCREEN_WIDTH - gCameraScale.x / 2.0f, gCameraScale.y / 2.0f };
 
@@ -243,16 +244,13 @@ void update()
         gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f;
     }
 
-    {
-        static bool regeraBaseInit = false;
-        static Vector2 regeraBasePosition;
-        if (!regeraBaseInit) { regeraBasePosition = { SCREEN_WIDTH / 2.0f - 250.0f, SCREEN_HEIGHT / 2.0f - 150.0f }; regeraBaseInit = true; }
-        float regeraAngularSpeed = 0.6f;
-        float regeraEllipseRadiusX = 80.0f;
-        float regeraEllipseRadiusY = 30.0f;
-        gRegeraPosition.x = regeraBasePosition.x + regeraEllipseRadiusX * cosf(regeraAngularSpeed * gPulseTime);
-        gRegeraPosition.y = regeraBasePosition.y + regeraEllipseRadiusY * sinf(2.0f * regeraAngularSpeed * gPulseTime);
-    }
+    
+    float regeraAngularSpeed = 0.6f;
+    float regeraEllipseRadiusX = 80.0f;
+    float regeraEllipseRadiusY = 30.0f;
+    gRegeraPosition.x = gRegeraBasePosition.x + regeraEllipseRadiusX * cosf(regeraAngularSpeed * gPulseTime);
+    gRegeraPosition.y = gRegeraBasePosition.y + regeraEllipseRadiusY * sinf(2.0f * regeraAngularSpeed * gPulseTime);
+    
 
     // Camera follows the Regera with elliptical orbit
     float cameraOrbitSpeed = 1.1f;
