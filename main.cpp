@@ -50,7 +50,7 @@ float    gFlashTime   = 0.0f;
 
 Vector2   gFlashScale    = { FLASH_SIZE.x * FLASH_MIN_FACTOR, FLASH_SIZE.y * FLASH_MIN_FACTOR };
 Vector2   gRegeraScale   = { REGERA_SIZE.x / 2.0f, REGERA_SIZE.y / 2.0f };
-Vector2   gCameraScale   = { CAMERA_SIZE.x / 6.0f, CAMERA_SIZE.y / 6.0f };
+Vector2   gCameraScale   = { CAMERA_SIZE.x / 9.0f, CAMERA_SIZE.y / 9.0f };
 
 Vector2   gFlashPosition = { gFlashScale.x / 2.0f, SCREEN_HEIGHT - gFlashScale.y / 2.0f };
 Vector2   gRegeraPosition = { gRegeraScale.x / 2.0f, gRegeraScale.y / 2.0f };
