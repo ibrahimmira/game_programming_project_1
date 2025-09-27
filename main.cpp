@@ -11,12 +11,12 @@
 #include "CS3113/cs3113.h"
 #include "math.h"
 
-
 // Global Constants
 constexpr int   SCREEN_WIDTH  = 1366,
                 SCREEN_HEIGHT = 768,
                 FPS           = 60,
-                SIZE          = 300;
+                SIZE          = 300,
+                BG_COUNT = 5;
 
 constexpr Vector2   REGERA_SIZE  = { (float) 1200, (float) 673 },
                     FLASH_SIZE   = { (float) 512, (float) 601 },
@@ -58,7 +58,6 @@ float       gFlashTime   = 0.0f,
             gCameraAngle   = 0.0f,
             gPreviousTicks = 0.0f;
 
-
 Vector2     gFlashScale    = { FLASH_SIZE.x * FLASH_MIN_FACTOR, FLASH_SIZE.y * FLASH_MIN_FACTOR },
             gRegeraScale   = { REGERA_SIZE.x / 2.0f, REGERA_SIZE.y / 2.0f },
             gCameraScale   = { CAMERA_SIZE.x / 9.0f, CAMERA_SIZE.y / 9.0f },
@@ -70,11 +69,7 @@ Vector2     gFlashScale    = { FLASH_SIZE.x * FLASH_MIN_FACTOR, FLASH_SIZE.y * F
 
             gCameraPosition = { SCREEN_WIDTH - gCameraScale.x / 2.0f, gCameraScale.y / 2.0f };
             
-
-
-
-int         gBgCount = 5,
-            gBgIndex = 0;
+int         gBgIndex = 0;
 
 Texture2D   gTextureFLASH;
 Texture2D   gTextureREGERA;
@@ -231,15 +226,14 @@ void update()
     // Flash Animation
     gFlashTime += deltaTime;
 
-    float growth = expf(FLASH_GROWTH_K * gFlashTime);
-    float factor = FLASH_MIN_FACTOR * growth;
+    float growth = expf(FLASH_GROWTH_K * gFlashTime),
+          factor = FLASH_MIN_FACTOR * growth,
+          speed = FLASH_BASE_SPEED * growth;
 
     if (factor > FLASH_MAX_FACTOR) factor = FLASH_MAX_FACTOR;
 
     gFlashScale.x = FLASH_SIZE.x * factor;
     gFlashScale.y = FLASH_SIZE.y * factor;
-
-    float speed = FLASH_BASE_SPEED * growth;
 
     gFlashPosition.x += speed * deltaTime;
     gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f
@@ -247,7 +241,7 @@ void update()
 
     // Extra Credit
     if (gFlashPosition.x - gFlashScale.x * 0.5f > SCREEN_WIDTH) {
-        gBgIndex = (gBgIndex + 1) % gBgCount;
+        gBgIndex = (gBgIndex + 1) % BG_COUNT;
 
         gFlashTime = 0.0f;
         gFlashScale.x = FLASH_SIZE.x * FLASH_MIN_FACTOR;
@@ -260,7 +254,6 @@ void update()
     gRegeraPosition.x = gRegeraBasePosition.x + REGERA_ELLIPSE_RADIUSX * cosf(REGERA_ANGULAR_SPEED * gPulseTime);
     gRegeraPosition.y = gRegeraBasePosition.y + REGERA_ELLIPSE_RADIUSY * sinf(2.0f * REGERA_ANGULAR_SPEED * gPulseTime);
     
-
     // Camera Animation (follows the Regera)
     float theta = CAMERA_ORBIT_SPEED * gPulseTime;
 
