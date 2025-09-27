@@ -16,7 +16,7 @@ constexpr int   SCREEN_WIDTH  = 1366,
                 SCREEN_HEIGHT = 768,
                 FPS           = 60,
                 SIZE          = 300,
-                BG_COUNT = 5;
+                BG_COUNT      = 5;
 
 constexpr Vector2   REGERA_SIZE  = { (float) 1200, (float) 673 },
                     FLASH_SIZE   = { (float) 512, (float) 601 },
@@ -52,7 +52,7 @@ constexpr float FLASH_MIN_FACTOR = 1.0f / 12.0f,
 // Global Variables
 AppStatus   gAppStatus     = RUNNING;
 
-float       gFlashTime   = 0.0f,
+float       gFlashTime     = 0.0f,
             gAngle         = 0.0f,
             gPulseTime     = 0.0f,
             gCameraAngle   = 0.0f,
@@ -221,7 +221,6 @@ void update()
     gPreviousTicks = ticks;
 
     gPulseTime += 1.0f * deltaTime;
-
 
     // Flash Animation
     gFlashTime += deltaTime;
