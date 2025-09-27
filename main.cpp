@@ -18,61 +18,67 @@ constexpr int   SCREEN_WIDTH  = 1366,
                 FPS           = 60,
                 SIZE          = 300;
 
-constexpr char    BG_COLOUR[] = "#710000ff";
-constexpr Vector2 ORIGIN      = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
-constexpr Vector2 BASE_SIZE   = { (float) SIZE, (float) SIZE };
-
-constexpr Vector2 REGERA_SIZE  = { (float) 1200, (float) 673 };
-constexpr Vector2 FLASH_SIZE   = { (float) 512, (float) 601 };
-constexpr Vector2 CAMERA_SIZE  = { (float) 965, (float) 723 };
+constexpr Vector2   REGERA_SIZE  = { (float) 1200, (float) 673 },
+                    FLASH_SIZE   = { (float) 512, (float) 601 },
+                    CAMERA_SIZE  = { (float) 965, (float) 723 };
 
 constexpr char REGERA[]  = "assets/regera.png";
 constexpr char FLASH[]  = "assets/flash.png";
 constexpr char CAMERA[]  = "assets/camera.png";
 
-// Global Variables
-AppStatus gAppStatus     = RUNNING;
-float     gScaleFactor   = SIZE,
-          gAngle         = 0.0f,
-          gPulseTime     = 0.0f;
-
-float     gCameraAngle   = 0.0f; 
-
-// FLASH animation state
-constexpr float FLASH_MIN_FACTOR = 1.0f / 12.0f;
-constexpr float FLASH_MAX_FACTOR = 1.5f;
-constexpr float FLASH_GROWTH_K   = 0.9f;
-constexpr float FLASH_BASE_SPEED = 120.0f;
-constexpr float FLASH_BOB_AMP    = 40.0f;
-constexpr float FLASH_BOB_FREQ   = 3.0f;
-
-float    gFlashTime   = 0.0f;
-
-Vector2   gFlashScale    = { FLASH_SIZE.x * FLASH_MIN_FACTOR, FLASH_SIZE.y * FLASH_MIN_FACTOR };
-Vector2   gRegeraScale   = { REGERA_SIZE.x / 2.0f, REGERA_SIZE.y / 2.0f };
-Vector2   gCameraScale   = { CAMERA_SIZE.x / 9.0f, CAMERA_SIZE.y / 9.0f };
-
-Vector2   gFlashPosition = { gFlashScale.x / 2.0f, SCREEN_HEIGHT - gFlashScale.y / 2.0f };
-Vector2   gRegeraBasePosition = { SCREEN_WIDTH / 2.0f - 250.0f, SCREEN_HEIGHT / 2.0f - 150.0f };
-Vector2   gRegeraPosition = { gRegeraScale.x / 2.0f, gRegeraScale.y / 2.0f };
-Vector2   gCameraPosition = { SCREEN_WIDTH - gCameraScale.x / 2.0f, gCameraScale.y / 2.0f };
-
-Vector2   gScale         = BASE_SIZE;
-float     gPreviousTicks = 0.0f;
-
-const char* gBgPalette[] = {
-    "#710000ff", // deep red
-    "#2a0033ff", // dark purple
-    "#001d4dff", // navy blue
-    "#004d26ff", // dark green
-    "#4d2a00ff"  // brownish orange
+const char* BG_PALETTE[] = {
+    "#710000ff", 
+    "#2a0033ff", 
+    "#001d4dff", 
+    "#004d26ff", 
+    "#4d2a00ff"  
 };
-int gBgCount = 5;
-int gBgIndex = 0;
 
-Texture2D gTextureFLASH;
-Texture2D gTextureREGERA;
-Texture2D gTextureCAMERA;
+constexpr float FLASH_MIN_FACTOR = 1.0f / 12.0f,
+                FLASH_MAX_FACTOR = 1.5f,
+                FLASH_GROWTH_K   = 0.9f,
+                FLASH_BASE_SPEED = 120.0f,
+                FLASH_BOB_AMP    = 40.0f,
+                FLASH_BOB_FREQ   = 3.0f,
+
+                REGERA_ANGULAR_SPEED = 0.6f,
+                REGERA_ELLIPSE_RADIUSX = 80.0F,
+                REGERA_ELLIPSE_RADIUSY = 30.0F,
+
+                CAMERA_ORBIT_SPEED = 1.1F,
+                CAMERA_ORBIT_RADIUSX = 330.0F,
+                CAMERA_ORBIT_RADIUSY = 190.0F;
+
+// Global Variables
+AppStatus   gAppStatus     = RUNNING;
+
+float       gFlashTime   = 0.0f,
+            gAngle         = 0.0f,
+            gPulseTime     = 0.0f,
+            gCameraAngle   = 0.0f,
+            gPreviousTicks = 0.0f;
+
+
+Vector2     gFlashScale    = { FLASH_SIZE.x * FLASH_MIN_FACTOR, FLASH_SIZE.y * FLASH_MIN_FACTOR },
+            gRegeraScale   = { REGERA_SIZE.x / 2.0f, REGERA_SIZE.y / 2.0f },
+            gCameraScale   = { CAMERA_SIZE.x / 9.0f, CAMERA_SIZE.y / 9.0f },
+
+            gFlashPosition = { gFlashScale.x / 2.0f, SCREEN_HEIGHT - gFlashScale.y / 2.0f },
+            
+            gRegeraBasePosition = { SCREEN_WIDTH / 2.0f - 250.0f, SCREEN_HEIGHT / 2.0f - 150.0f },
+            gRegeraPosition = { gRegeraScale.x / 2.0f, gRegeraScale.y / 2.0f },
+
+            gCameraPosition = { SCREEN_WIDTH - gCameraScale.x / 2.0f, gCameraScale.y / 2.0f };
+            
+
+
+
+int         gBgCount = 5,
+            gBgIndex = 0;
+
+Texture2D   gTextureFLASH;
+Texture2D   gTextureREGERA;
+Texture2D   gTextureCAMERA;
 
 // Function Declarations
 void drawFlash();
@@ -214,58 +220,60 @@ void processInput()
 
 void update() 
 {
+
     float ticks = (float) GetTime();
     float deltaTime = ticks - gPreviousTicks;
     gPreviousTicks = ticks;
 
     gPulseTime += 1.0f * deltaTime;
 
+
+    // Flash Animation
     gFlashTime += deltaTime;
 
     float growth = expf(FLASH_GROWTH_K * gFlashTime);
     float factor = FLASH_MIN_FACTOR * growth;
+
     if (factor > FLASH_MAX_FACTOR) factor = FLASH_MAX_FACTOR;
 
     gFlashScale.x = FLASH_SIZE.x * factor;
     gFlashScale.y = FLASH_SIZE.y * factor;
 
     float speed = FLASH_BASE_SPEED * growth;
-    gFlashPosition.x += speed * deltaTime;
 
+    gFlashPosition.x += speed * deltaTime;
     gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f
                        - FLASH_BOB_AMP * sinf(gPulseTime * FLASH_BOB_FREQ);
 
+    // Extra Credit
     if (gFlashPosition.x - gFlashScale.x * 0.5f > SCREEN_WIDTH) {
         gBgIndex = (gBgIndex + 1) % gBgCount;
+
         gFlashTime = 0.0f;
         gFlashScale.x = FLASH_SIZE.x * FLASH_MIN_FACTOR;
         gFlashScale.y = FLASH_SIZE.y * FLASH_MIN_FACTOR;
         gFlashPosition.x = gFlashScale.x * 0.5f;
         gFlashPosition.y = SCREEN_HEIGHT - gFlashScale.y * 0.5f;
     }
-
     
-    float regeraAngularSpeed = 0.6f;
-    float regeraEllipseRadiusX = 80.0f;
-    float regeraEllipseRadiusY = 30.0f;
-    gRegeraPosition.x = gRegeraBasePosition.x + regeraEllipseRadiusX * cosf(regeraAngularSpeed * gPulseTime);
-    gRegeraPosition.y = gRegeraBasePosition.y + regeraEllipseRadiusY * sinf(2.0f * regeraAngularSpeed * gPulseTime);
+    // ٍRegera Animation
+    gRegeraPosition.x = gRegeraBasePosition.x + REGERA_ELLIPSE_RADIUSX * cosf(REGERA_ANGULAR_SPEED * gPulseTime);
+    gRegeraPosition.y = gRegeraBasePosition.y + REGERA_ELLIPSE_RADIUSY * sinf(2.0f * REGERA_ANGULAR_SPEED * gPulseTime);
     
 
-    // Camera follows the Regera with elliptical orbit
-    float cameraOrbitSpeed = 1.1f;
-    float cameraOrbitRadiusX = 330.0f;
-    float cameraOrbitRadiusY = 190.0f;
-    float theta = cameraOrbitSpeed * gPulseTime;
-    gCameraPosition.x = gRegeraPosition.x + cameraOrbitRadiusX * cosf(theta);
-    gCameraPosition.y = gRegeraPosition.y + cameraOrbitRadiusY * sinf(theta);
+    // Camera Animation (follows the Regera)
+    float theta = CAMERA_ORBIT_SPEED * gPulseTime;
+
+    gCameraPosition.x = gRegeraPosition.x + CAMERA_ORBIT_RADIUSX * cosf(theta);
+    gCameraPosition.y = gRegeraPosition.y + CAMERA_ORBIT_RADIUSY * sinf(theta);
+
     gCameraAngle = 10.0f * sinf(theta);
 }
 
 void render()
 {
     BeginDrawing();
-    ClearBackground(ColorFromHex(gBgPalette[gBgIndex]));
+    ClearBackground(ColorFromHex(BG_PALETTE[gBgIndex]));
 
     drawFlash();
     drawRegera();
